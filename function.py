@@ -28,6 +28,17 @@
 
 from requests_html import HTMLSession
 
+
+def check_sym(sym, list_count, grade, text):
+    if 0 < sym < list_count[1]:
+        print(f'Слишком короткий {text}')
+        return 0
+    elif sym <= list_count[0]:
+        print(f'оценка за к-во {text} - {grade}')
+        return grade
+
+
+
 def check_result(word, meta, text, grade=20):
     if word in meta:
         # print("оценка за ключевое слово '\"' {0} '\"' {1} - {2}".format(word, text, grade))
@@ -95,46 +106,15 @@ while True:
     sym_result = f'Букв в Title {sym_title}\n Букв в Description {sym_description}\n Букв в h1 {sym_h1}\n'
 
     print(sym_result)
+    result_sym_title = check_sym(sym_title, [60, 30], 10, 'Title')
 
-    if sym_title <= 60:
-        result_sym_title = 10
-        print('оценка за к-во Title -', result_sym_title)
-    elif 0 < sym_title < 30:
-        print('Слишком короткий тайтл')
+    result_sym_description = check_sym(sym_description, [170, 160], 10, 'description')
 
-    if sym_description <= 170:
-        result_sym_description = 10
-        print('оценка за к-во description -', result_sym_description)
-    elif 0 < sym_title < 160:
-        print('Слишком короткий description')
-
-    if sym_h1 <= 40:
-        result_sym_h1 = 20
-        print('оценка за к-во h1 -', result_sym_h1)
-    elif 0 < sym_title < 20:
-        print('Слишком короткий h1')
-
-    # if keyword in title:
-    #     result_key_title = 20
-    #     print('оценка за ключевое слово', '\"' + keyword + '\"', 'в Title -', result_key_title)
-    # else:
-    #     print('Нет такого ключа в Title')
+    result_sym_h1 = check_sym(sym_h1, [40, 20], 20, 'h1')
 
     result_key_title = check_result(keyword, title, 'в Title')
 
-    # if keyword in description:
-    #     result_key_description = 20
-    #     print('оценка за ключевое слово', '\"' + keyword + '\"', 'в Description -', result_key_description)
-    # else:
-    #     print('Нет такого ключа в Description')
-
     result_key_description = check_result(keyword, description, 'в Description')
-
-    # if keyword in h1:
-    #     result_key_h1 = 20
-    #     print('оценка за ключевое слово', '\"' + keyword + '\"', 'в H1 -', result_key_h1)
-    # else:
-    #     print('Нет такого ключа в h1')
 
     result_key_h1 = check_result(keyword, h1, 'в H1')
 
