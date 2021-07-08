@@ -75,7 +75,7 @@ while True:
         resp = session.get(url)
 
     try:
-        title = (str.lower(resp.html.xpath('//title')[0].text))
+        title = str.lower(resp.html.xpath('//title')[0].text)
     except Exception as e:
         print('title not found on the page', e)
         title = ''

@@ -41,37 +41,60 @@
 #     return (c+b)/a
 #
 # print(check_math(2, 10, 12))
+#
+# error = {0: "spec.symbol"}
+#
+# city = input("Input city: ")
+# age = int(input("Input age: "))
+#
+# about = {"name": name, "age": age, "city": city}
+#
+#
+# def check_name(name):
+#     if not name.istitle():
+#         return False
+#     for i in name:
+#         if i.isdigit():
+#             return False
+#         elif i.isupper() and i.index(i) != 0:
+#             return False
+#         elif i in (".,:;!_*-+()/#¤%&)"):
+#             return False
+#         return True
+#
+# def about_human(kwargs):
+#     for key, value in kwargs.items():
+#         print(f"{key} - {value}")
+#
+# while True:
+#     name = input("Input name: ")
+#     result = check_name(name)
+#     if result:
+#         break
+#     else:
+#         print("Try again, without *^@!")
+#
+# about_human(about)
 
-error = {0: "spec.symbol"}
+from requests_html import HTMLSession
+session = HTMLSession()
 
-city = input("Input city: ")
-age = int(input("Input age: "))
+r = session.get('https://python.org/')
+# all_links = [link for link in r.html.links if 'http' in link]
+all_links = r.html.absolute_links
+# a = r.html.xpath('//meta[@name="googlebot"]/@content')
+# print(a)
+# print(all_links)
+# for i in all_links:
+#     new = session.get(i)
+#     links = new.html.absolute_links
+#     print(links)
 
-about = {"name": name, "age": age, "city": city}
-
-
-def check_name(name):
-    if not name.istitle():
-        return False
-    for i in name:
-        if i.isdigit():
-            return False
-        elif i.isupper() and i.index(i) != 0:
-            return False
-        elif i in (".,:;!_*-+()/#¤%&)"):
-            return False
-        return True
-
-def about_human(kwargs):
-    for key, value in kwargs.items():
-        print(f"{key} - {value}")
-
-while True:
-    name = input("Input name: ")
-    result = check_name(name)
-    if result:
-        break
-    else:
-        print("Try again, without *^@!")
-
-about_human(about)
+while all_links:
+    new_links = []
+    for i in all_links:
+        new = session.get(i)
+        links = new.html.absolute_links
+        new_links = [*links]
+    print(new_links[0])
+    break
