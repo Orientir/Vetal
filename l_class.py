@@ -16,17 +16,16 @@
 # p2 = People(2000, "Denis", "Petrov")
 # p2.about_myself()
 from requests_html import HTMLSession
+len_title = [60, 30]
+len_description = [170, 160]
+len_h1 = [40, 20]
+grade_title = grade_description = 10
+grade_h1 = 20
 
 class Seo():
-    len_title = [60, 30]
-    len_description = [170, 160]
-    len_h1 = [40, 20]
-    grade_title = grade_description = 10
-    grade_h1 = 20
-
-    result_grade_title = 0
-    result_grade_description = 0
-    result_grade_h1 = 0
+    meta = {'title': [len_title, grade_title],
+            'description': [len_description, grade_description],
+            'h1': [len_h1, grade_h1]}
 
     def __init__(self, url, keyword):
         self.url = url
@@ -42,16 +41,19 @@ class Seo():
             return False
 
     def set_meta(self):
-        self.title = str.lower(self.response.html.xpath('//title')[0].text)
-        self.description = self.response.html.xpath('//meta[@name="description"]/@content')[0]
-        self.h1 = self.response.html.xpath('//h1')[0].text
+        self.meta['title'].append(str.lower(self.response.html.xpath('//title')[0].text))
+        self.meta['description'].append(self.response.html.xpath('//meta[@name="description"]/@content')[0])
+        self.meta['h1'].append(self.response.html.xpath('//h1')[0].text)
 
-    def check_sym(self, sym, list_count, grade, result, text):
-        if 0 < sym < list_count[1]:
-            print(f'Слишком короткий {text}')
-        elif sym <= list_count[0]:
-            print(f'оценка за к-во {text} - {grade}')
-            result = grade
+    def check_sym(self, meta_name):
+        meta_object = self.meta[meta_name]
+        length = len(meta_object[2])
+        if 0 < length < meta_object[0][1]:
+            print(f'Слишком короткий {meta_name}')
+            self.sym_title = 0
+        elif length <= meta_object[0][0]:
+            print(f'оценка за к-во {meta_name} - {meta_object[1]}')
+            self.sym_title = meta_object[1]
 
     def get_all_information(self):
         pass
@@ -62,8 +64,8 @@ object = Seo('https://python.org/', 'python')
 is_valid = object.check_url()
 if is_valid:
     object.set_meta()
-    object.check_sym(len(object.title), object.len_title, object.grade_title, object.result_grade_title, 'title')
-    object.check_sym(len(object.description), object.len_description, object.grade_description, object.result_grade_description, 'description')
-    object.check_sym(len(object.h1), object.len_h1, object.grade_h1, object.result_grade_h1, 'h1')
+    object.check_sym('title')
+    object.check_sym('description')
+    object.check_sym('h1')
 
 
