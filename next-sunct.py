@@ -90,11 +90,11 @@ all_links = r.html.absolute_links
 #     links = new.html.absolute_links
 #     print(links)
 
-while all_links:
-    new_links = []
-    for i in all_links:
-        new = session.get(i)
-        links = new.html.absolute_links
-        new_links = [*links]
-    print(new_links[0])
-    break
+# while all_links:
+#     new_links = []
+#     for i in all_links:
+#         new = session.get(i)
+#         links = new.html.absolute_links
+#         new_links = [*links]
+#     print(new_links[0])
+#     break

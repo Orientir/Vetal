@@ -16,6 +16,8 @@
 # p2 = People(2000, "Denis", "Petrov")
 # p2.about_myself()
 from requests_html import HTMLSession
+from reppy.robots import Robots
+
 len_title = [60, 30]
 len_description = [170, 160]
 len_h1 = [40, 20]
@@ -60,12 +62,14 @@ class Seo():
 
 
 
-object = Seo('https://python.org/', 'python')
+object = Seo('https://www.deezer.com/', 'python')
 is_valid = object.check_url()
 if is_valid:
     object.set_meta()
     object.check_sym('title')
     object.check_sym('description')
     object.check_sym('h1')
+    print("*************")
+
 
 
