@@ -58,30 +58,21 @@ session = HTMLSession()
 # rec_func(5)
 
 # robots = Robots.fetch('https://b-options.com/robots.txt')
-# tree = sitemap_tree_for_homepage('https://b-options.com/')
-# pages = [page for page in tree.all_pages() if ]
-#
+tree = sitemap_tree_for_homepage('https://b-options.com/')
+pages = [page.url for page in tree.all_pages()]
+
 # for page in tree.all_pages():
 #     pages.append(page.url)
 #
 # pages = set(pages)
 #
 # pp(pages)
-#
-# print(len(pages))
+
+print(len(pages))
 
 
 
 def get_source(url):
-    """Return the source code for the provided URL.
-
-    Args:
-        url (string): URL of the page to scrape.
-
-    Returns:
-        response (object): HTTP response object from requests_html.
-    """
-
     try:
         session = HTMLSession()
         response = session.get(url)
@@ -91,10 +82,6 @@ def get_source(url):
         print(e)
 
 def get_url_sitemap(url):
-    """Return the source code for the provided URL.
-        return url for sitemap.xml
-    """
-
     try:
         robots = Robots.fetch(f'{url}robots.txt')
         sitemap = robots.sitemaps
@@ -105,15 +92,6 @@ def get_url_sitemap(url):
         return f"{url}sitemap.xml"
 
 def scrape_sitemap(url):
-    """Scrape the contents of an XML sitemap and return the contents in a dataframe.
-
-    Args:
-        url (string): Absolute URL of urlset XML sitemap.
-
-    Returns:
-        df (dataframe): Pandas dataframe containing sitemap contents.
-    """
-
     df = pd.DataFrame(columns=['url'])
 
     sitemap = get_url_sitemap(url)
