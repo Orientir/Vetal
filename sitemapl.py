@@ -14,11 +14,12 @@ from pprint import pprint
 
 session = HTMLSession()
 
-robots = Robots.fetch('http://flyandlure.org/robots.txt')
-sitemap = robots.sitemaps
-print(sitemap)
+# robots = Robots.fetch('http://flyandlure.org/robots.txt')
+# sitemap = robots.sitemaps
+# print(sitemap)
 
-response = session.get('https://binaryoptionsdailyreview.com/sitemap.xml')
+domen = input("Input domen: ") # binaryoptionsdailyreview.com
+response = session.get(f'http://{domen}/sitemap.xml')
 print(response)
 
 links = []
@@ -29,8 +30,7 @@ with response as r:
 
     for url in urls:
         link = url.text
-        ses = HTMLSession()
-        resp = ses.get(link)
+        resp = session.get(link)
         googlebot = resp.html.xpath('//meta[@name="googlebot"]/@content')
         if not googlebot:
             links.append(url.text)

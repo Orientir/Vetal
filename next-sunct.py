@@ -76,12 +76,12 @@
 #
 # about_human(about)
 
-from requests_html import HTMLSession
-session = HTMLSession()
-
-r = session.get('https://python.org/')
-# all_links = [link for link in r.html.links if 'http' in link]
-all_links = r.html.absolute_links
+# from requests_html import HTMLSession
+# session = HTMLSession()
+#
+# r = session.get('https://python.org/')
+# # all_links = [link for link in r.html.links if 'http' in link]
+# all_links = r.html.absolute_links
 # a = r.html.xpath('//meta[@name="googlebot"]/@content')
 # print(a)
 # print(all_links)
@@ -89,7 +89,7 @@ all_links = r.html.absolute_links
 #     new = session.get(i)
 #     links = new.html.absolute_links
 #     print(links)
-
+#
 # while all_links:
 #     new_links = []
 #     for i in all_links:

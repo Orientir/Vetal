@@ -30,6 +30,14 @@ from requests_html import HTMLSession
 
 
 def check_sym(sym, list_count, grade, text):
+    """
+    Check symbol in meta and return grade
+    :param sym: int number
+    :param list_count: list of two int numbers - valid and unvalid
+    :param grade: int number
+    :param text: string
+    :return: int number - general grade
+    """
     if 0 < sym < list_count[1]:
         print(f'Слишком короткий {text}')
         return 0

@@ -1,8 +1,8 @@
-# from requests_html import HTMLSession
+from requests_html import HTMLSession
 from reppy.robots import Robots
-#
-# from pprint import pprint as pp
-# from usp.tree import sitemap_tree_for_homepage
+
+from pprint import pprint
+from usp.tree import sitemap_tree_for_homepage
 
 import requests
 import pandas as pd
@@ -32,7 +32,7 @@ from requests_html import HTMLSession
 #
 # print(open_urls)
 
-session = HTMLSession()
+# session = HTMLSession()
 
 # open_bot = [] # ссылки открыты для индексации гугла
 # r = session.get('https://b-options.com/')
@@ -58,8 +58,8 @@ session = HTMLSession()
 # rec_func(5)
 
 # robots = Robots.fetch('https://b-options.com/robots.txt')
-tree = sitemap_tree_for_homepage('https://b-options.com/')
-pages = [page.url for page in tree.all_pages()]
+# tree = sitemap_tree_for_homepage('https://b-options.com/')
+# pages = [page.url for page in tree.all_pages()]
 
 # for page in tree.all_pages():
 #     pages.append(page.url)
@@ -68,52 +68,73 @@ pages = [page.url for page in tree.all_pages()]
 #
 # pp(pages)
 
-print(len(pages))
+# print(len(pages))
 
 
 
-def get_source(url):
-    try:
-        session = HTMLSession()
-        response = session.get(url)
-        return response
-
-    except Exception as e:
-        print(e)
-
-def get_url_sitemap(url):
-    try:
-        robots = Robots.fetch(f'{url}robots.txt')
-        sitemap = robots.sitemaps
-        return sitemap[0] if sitemap else f"{url}sitemap.xml"
-
-    except Exception as e:
-        print(e)
-        return f"{url}sitemap.xml"
-
-def scrape_sitemap(url):
-    df = pd.DataFrame(columns=['url'])
-
-    sitemap = get_url_sitemap(url)
-    print(sitemap)
-    if sitemap:
-        response = get_source('https://www.deezer.com/sitemap.xml')
-
-        with response as r:
-            urls = r.html.find("loc", first=False)
-
-            for url in urls:
-                row = {'url': url.text}
-
-                df = df.append(row, ignore_index=True)
-
-    return df
+# def get_source(url):
+#     try:
+#         session = HTMLSession()
+#         response = session.get(url)
+#         return response
+#
+#     except Exception as e:
+#         print(e)
+#
+# def get_url_sitemap(url):
+#     try:
+#         robots = Robots.fetch(f'{url}robots.txt')
+#         sitemap = robots.sitemaps
+#         return sitemap[0] if sitemap else f"{url}sitemap.xml"
+#
+#     except Exception as e:
+#         print(e)
+#         return f"{url}sitemap.xml"
+#
+# def scrape_sitemap(url):
+#     df = pd.DataFrame(columns=['url'])
+#
+#     sitemap = get_url_sitemap(url)
+#     print(sitemap)
+#     if sitemap:
+#         response = get_source('https://www.deezer.com/sitemap.xml')
+#
+#         with response as r:
+#             urls = r.html.find("loc", first=False)
+#
+#             for url in urls:
+#                 row = {'url': url.text}
+#
+#                 df = df.append(row, ignore_index=True)
+#
+#     return df
 
 # http://flyandlure.org/sitemap.xml
 
 
-url = "https://b-options.com/"
+# url = "https://b-options.com/"
 
-df = scrape_sitemap(url)
-df.to_csv("sitemap.csv", index=False)
-df.tail(10)
+# df = scrape_sitemap(url)
+# df.to_csv("sitemap.csv", index=False)
+# df.tail(10)
+
+session = HTMLSession()
+domen = input("Input domen: ") # binaryoptionsdailyreview.com
+response = session.get(f'http://{domen}/sitemap.xml')
+print(response)
+
+links = []
+
+with response as r:
+    urls = r.html.find("loc", first=False)
+    print(len(urls), " --- sitemap")
+
+    for url in urls:
+        link = url.text
+        resp = session.get(link)
+        googlebot = resp.html.xpath('//meta[@name="googlebot"]/@content')
+        if not googlebot:
+            links.append(url.text)
+
+pprint(links)
+print(len(links), " --- googlebot")
