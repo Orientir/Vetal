@@ -118,6 +118,8 @@ from requests_html import HTMLSession
 # df.to_csv("sitemap.csv", index=False)
 # df.tail(10)
 
+url_domains = open('dz_9_url-domains.csv', 'a', encoding="utf-8")
+
 session = HTMLSession()
 domen = input("Input domen: ") # binaryoptionsdailyreview.com
 response = session.get(f'http://{domen}/sitemap.xml')
@@ -135,6 +137,15 @@ with response as r:
         googlebot = resp.html.xpath('//meta[@name="googlebot"]/@content')
         if not googlebot:
             links.append(url.text)
+            url_domains.write(url.text + '\n')
+            url_domains.flush()
+
+
+
 
 pprint(links)
 print(len(links), " --- googlebot")
+
+
+
+
