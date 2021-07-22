@@ -1,7 +1,7 @@
 from requests_html import HTMLSession
 from reppy.robots import Robots
 
-from pprint import pprint
+from pprint import pprint as pp
 from usp.tree import sitemap_tree_for_homepage
 
 import requests
@@ -118,34 +118,79 @@ from requests_html import HTMLSession
 # df.to_csv("sitemap.csv", index=False)
 # df.tail(10)
 
-url_domains = open('dz_9_url-domains.csv', 'a', encoding="utf-8")
+#r.html.absolute_links
+
+#http://flyandlure.org
+
+# url_domains = open('dz_9_url-domains.csv', 'a', encoding="utf-8")
+#
+# session = HTMLSession()
+# domen = input("Input domen: ") # binaryoptionsdailyreview.com
+# response = session.get(f'http://{domen}/sitemap.xml')
+# print(response)
+#
+# links = []
+#
+# with response as r:
+#     urls = r.html.find("loc", first=False)
+#     print(len(urls), " --- sitemap")
+#
+#     for url in urls:
+#         link = url.text
+#         resp = session.get(link)
+#         googlebot = resp.html.xpath('//meta[@name="googlebot"]/@content')
+#         if not googlebot:
+#             links.append(url.text)
+#             url_domains.write(url.text + '\n')
+#             url_domains.flush()
+#
+#
+#
+#
+# pprint(links)
+# print(len(links), " --- googlebot")
+
+from requests_html import HTMLSession
+from reppy.robots import Robots
+
+
 
 session = HTMLSession()
-domen = input("Input domen: ") # binaryoptionsdailyreview.com
-response = session.get(f'http://{domen}/sitemap.xml')
-print(response)
+domain = input('Введите домен для краулинга: ')
+main_link = f'http://{domain}/'
 
-links = []
+response = session.get(main_link)
 
-with response as r:
-    urls = r.html.find("loc", first=False)
-    print(len(urls), " --- sitemap")
+robots_link = f'https://{domain}/robots.txt'
 
-    for url in urls:
-        link = url.text
-        resp = session.get(link)
-        googlebot = resp.html.xpath('//meta[@name="googlebot"]/@content')
-        if not googlebot:
-            links.append(url.text)
-            url_domains.write(url.text + '\n')
-            url_domains.flush()
+crawled_links = set()
+links_to_crawl = set()
+links_to_crawl.add(main_link)
 
+links = set()
 
+robots = Robots.fetch(robots_link)
 
+while True:
+    try:
+        if len(links_to_crawl) == 0:
+            break
+        url = links_to_crawl.pop()
+        response = session.get(url)
+        crawled_links.add(url)
 
-pprint(links)
-print(len(links), " --- googlebot")
+        for link in response.html.absolute_links:
+            if domain not in link:
+                continue
+            if not robots.allowed(link, '*'):
+                continue
+            if link in crawled_links:
+                continue
+            links_to_crawl.add(link)
+        links.add(url)
 
+    except:
+        continue
 
-
+pp(links)
 
