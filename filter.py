@@ -11,7 +11,7 @@ def line_filter(line):
         date = line.split()[3][1:].split(':')[0]
 
     except Exception:
-        print('[Error in line]', line)
+        #print('[Error in line]', line)
         return
 
     if 'google' not in user_agent.lower():
