@@ -9,12 +9,14 @@
 from core import (
     google_scraper, get_text,
     texts_analyzer, COPYWRITER_TASK,
-    send_email
+    send_email,
+    text_with_count_income,
+    delete_numbers
 )
 
 
 def tz_on_mail(keyword=None):
-    if not keyword:
+    while not keyword:
         keyword = input('Enter key phrase: ')
 
     links = google_scraper(keyword)
@@ -24,21 +26,29 @@ def tz_on_mail(keyword=None):
         texts[link] = get_text(link)
 
     top3 = list(texts.values())[:3]
+    reference = links[:3]
 
-    keywords_main = texts_analyzer(texts.values())
-    keywords_secondary = texts_analyzer(top3)
+    keywords_main, count_income_main = texts_analyzer(texts.values())
+    keywords_secondary, count_income_secondary = texts_analyzer(top3)
 
     keywords_secondary.difference_update(keywords_main)
 
+    ready_keyword_main = text_with_count_income(keywords_main, count_income_main)
+    ready_keyword_secondary = text_with_count_income(keywords_secondary, count_income_secondary)
+
+    keywords_main_no_numbers = delete_numbers(keywords_main)
+
     task_text = COPYWRITER_TASK.format(
-        keywords_main='\n'.join(keywords_main),
-        keywords_secondary='\n'.join(keywords_secondary),
-        title=keyword.upper()
+        keywords_main='\n'.join(ready_keyword_main),
+        keywords_secondary='\n'.join(ready_keyword_secondary),
+        title=keyword.upper(),
+        keywords_title='\n'.join(keywords_main_no_numbers),
+        reference='\n'.join(reference)
     )
 
     print(task_text)
 
-    #send_email(task_text, "ya.orient@gmail.com")
+    send_email(task_text, "ya.orient@gmail.com")
 
 
 if __name__ == '__main__':

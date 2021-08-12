@@ -13,7 +13,7 @@ basicConfig
 
 import logging
 
-logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='app.log', level=logging.DEBUG, filemode='w', format='%(asctime)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(name)s - %(levelname)s - %(message)s')
 
 logging.debug('This is a debug message')
 logging.info('This is an info message')

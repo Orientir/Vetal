@@ -16,8 +16,14 @@ COPYWRITER_TASK = '''
 Также упомянуть в тексте:
 {keywords_secondary}
 
+В заголовке использовать такие слова:
+{keywords_title}
+
 Текст должен быть уникальным на минимум 98%.
 Размер текста от 2000 символов.
+
+Референсы: 
+{reference}
 '''
 
 
@@ -97,4 +103,15 @@ def texts_analyzer(texts):
                           key=lambda x: x[1], reverse=True)[:10]
     best_10_keys = {key[0] for key in best_10_keys}
 
-    return best_10_keys
+    return best_10_keys, text_dictionary
+
+def text_with_count_income(keys, count_income):
+    ready_list_keys = []
+    for key in keys:
+        value = count_income[key]
+        ready_list_keys.append(f"{key} - количество вхождений ключа {value}")
+    return ready_list_keys
+
+def delete_numbers(keys):
+    new_keys = [key for key in keys if not key.isdigit()]
+    return new_keys
