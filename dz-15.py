@@ -25,14 +25,6 @@ class Page(Website):
         return self.domen
 
 
-class Title(Page):
-    def __init__(self, domen, zone, keywords, ssl=True):
-        Page.__init__(self, domen, zone, keywords, ssl)
-        self.keywords = keywords
-
-    def get_len(self):
-        return 50
-
 class SearchEngine:
     engine = 'google.com'
     def __init__(self, query):
@@ -58,22 +50,40 @@ class Text:
             f.close()
             self.some()
 
+class Title(Page):
+    def __init__(self, domen, zone, keywords, ssl=True):
+        Page.__init__(self, domen, zone, keywords, ssl)
+        self.keywords = keywords
 
-site = Website(domen='google.com', zone='com')
-page = Page(domen='google.com', zone='com', keywords=['list', 'python', 'methods'])
-print(page.get_domen())
-title = Title(domen='google.com', zone='com', keywords=['list', 'python', 'methods'])
-print(title.get_len())
-search = SearchEngine(query='python')
-print(search.get_url_parse())
-t = '''
-111111111
-222222222222
-3333333333
-44444444444
-55555555555
-'''
-text = Text(t)
-text.save_to_file()
-text.some()
-some()
+    def __eq__(self, other):
+        return self.keywords == other.keywords
+
+    def __ne__(self, other):
+        return self.keywords != other.keywords
+
+    def __lt__(self, other):
+        return len(self.keywords) < len(other.keywords)
+
+    def __gt__(self, other):
+        return len(self.keywords) > len(other.keywords)
+
+    def __le__(self, other):
+        return len(self.keywords) <= len(other.keywords)
+
+    def __ge__(self, other):
+        return len(self.keywords) >= len(other.keywords)
+
+    def get_len(self):
+        return len(self.keywords)
+
+    def get_keywords(self):
+        return self.keywords
+
+
+
+page1 = Title(domen='google.com', zone='com', keywords=['yandex', 'python', 'methods', 'length'])
+page2 = Title(domen='yandex.com', zone='com', keywords=['yandex', 'python', 'methods', 'length'])
+
+print(page1 < page2)
+
+
