@@ -10,43 +10,68 @@ distance=15). Метод должен 1) определять, может ли �
 (атрибуту "бензин" обновляем значение) '''
 
 class Car():
-    def __init__(self, color, type, year):
+    miles = 0
+    gasoline = 0
+    fuel_consumption = 0.9 # расход бензина на 1 километр
+    on_engine = False
+
+    def __init__(self, color, type, year, tank=60):
         self.color = color
         self.type = type
         self.year = year
+        self.tank = tank
 
     def start(self):
+        self.on_engine = True
         print('Автомобиль заведен')
 
     def stop(self):
+        self.on_engine = False
         print("Автомобиль заглушен")
+        self.show_parameters()
 
-    def set_type(self, type):
-        self.type = type
+    def show_parameters(self):
+        print(f"Miles - {self.miles}")
+        print(f"Gasoline - {self.gasoline}")
 
     def go_car(self, distance=15):
-        if self.gasoline > 0:
-
-            print("we can run, our gasoline is ", self.gasoline)
+        if not self.on_engine:
+            self.start()
+        need_gas = distance * self.fuel_consumption
+        can_move = self.gasoline >= need_gas
+        if can_move:
+            self.gasoline -= need_gas
+            self.miles += distance
+            print("We go, we have gas: ", self.gasoline)
         else:
-            print("the gasoline end")
+            could_charge = self.tank - self.gasoline
+            print(f"the gasoline not enough, we have {self.gasoline} litres")
+            litres = int(input(f"Input litres or 0 or 1. You can charge to {could_charge} litres "))
 
+            while litres != 0 and litres > could_charge:
+                litres = int(input(f"Input litres or 0. You can charge to {could_charge} litres "))
+
+            if not litres:
+                self.stop()
+            elif litres == 1:
+                self.gas_station()
+            else:
+                self.gas_station(litres)
+
+    def gas_station(self, litres=None):
+        self.gasoline += litres if litres else self.tank - self.gasoline
+        print(f"We are charged, {self.gasoline} we have")
 
 car = Car('черный', 'легковая', 2010)
-car1 = Car('red', 'легковая', 2000)
+# car1 = Car('red', 'легковая', 2000)
 
 car.start()
-car.stop()
-print(car.type)
-car.set_type('на газу')
-print(car.type)
-
-car.running = 0
-print(car.running)
-car.gasoline =30
-car.tank = 60
-
 car.go_car()
+car.go_car(20)
+car.go_car(40)
+car.go_car(60)
+car.go_car(80)
+car.stop()
 
 
 
