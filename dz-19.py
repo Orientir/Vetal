@@ -1,47 +1,96 @@
-#!/usr/bin/python
-import httplib2
-
-from apiclient import errors
+from pprint import pprint
 from apiclient.discovery import build
-from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.service_account import ServiceAccountCredentials
 
 
-# Copy your credentials from the console
-CLIENT_ID = 'YOUR_CLIENT_ID'
-CLIENT_SECRET = 'YOUR_CLIENT_SECRET'
+def get_service(api_name, api_version, scopes, key_file_location):
+    """Get a service that communicates to a Google API.
+    Args:
+        api_name: The name of the api to connect to.
+        api_version: The api version to connect to.
+        scopes: A list auth scopes to authorize for the application.
+        key_file_location: The path to a valid service account JSON key file.
+    Returns:
+        A service that is connected to the specified API.
+    """
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        key_file_location, scopes=scopes)
+    # Build the service object.
+    service = build(api_name, api_version, credentials=credentials)
+    return service
 
-# Check https://developers.google.com/webmaster-tools/search-console-api-original/v3/ for all available scopes
-OAUTH_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
 
-# Redirect URI for installed apps
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+def execute_request(service, property_uri, request):
+    """Executes a searchAnalytics.query request.
+    Args:
+    service: The webmasters service to use when executing the query.
+    property_uri: The site or app URI to request data for.
+    request: The request to be executed.
+    Returns:
+    An array of response rows.
+    """
+    return service.searchanalytics().query(
+        siteUrl=property_uri, body=request).execute()
 
-# Run through the OAuth flow and retrieve credentials
-flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, OAUTH_SCOPE, REDIRECT_URI)
-authorize_url = flow.step1_get_authorize_url()
-print ('Go to the following link in your browser: ' + authorize_url)
-code = input('Enter verification code: ').strip()
-credentials = flow.step2_exchange(code)
 
-# Create an httplib2.Http object and authorize it with our credentials
-http = httplib2.Http()
-http = credentials.authorize(http)
+def main():
+    # Define the auth scopes to request.
+    scope = 'https://www.googleapis.com/auth/webmasters.readonly'
+    key_file_location = 'b-options-4cde32fd13e4.json'
 
-webmasters_service = build('searchconsole', 'v1', http=http)
+    # Authenticate and construct service.
+    service = get_service(
+            api_name='webmasters',
+            api_version='v3',
+            scopes=[scope],
+            key_file_location=key_file_location)
 
-# Retrieve list of properties in account
-site_list = webmasters_service.sites().list().execute()
+    working = True
+    row_limit = 25000
+    index = 0
 
-# Filter for verified websites
-verified_sites_urls = [s['siteUrl'] for s in site_list['siteEntry']
-                       if s['permissionLevel'] != 'siteUnverifiedUser'
-                          and s['siteUrl'][:4] == 'http']
+    website = 'https://b-options.com/'
 
-# Print the URLs of all websites you are verified for.
-for site_url in verified_sites_urls:
-  print(site_url)
-  # Retrieve list of sitemaps submitted
-  sitemaps = webmasters_service.sitemaps().list(siteUrl=site_url).execute()
-  if 'sitemap' in sitemaps:
-    sitemap_urls = [s['path'] for s in sitemaps['sitemap']]
-    print("  " + "\n  ".join(sitemap_urls))
+    domain = website.split('/')[2].split('.')[0]
+
+    f = open(f'{domain}_keys2.csv', 'w', encoding="utf-8")
+    f.write(f"Page;Keyword;Impressions;Clicks;Position;Ctr\n")
+
+    while working:
+        request = {
+            'startDate': '2021-01-01',
+            'endDate': '2021-09-17',
+            'dimensions': ['page', 'query'],
+            # 'dimensionFilterGroups': [{
+            #     'filters': [{
+            #         'dimension': 'page',
+            #         'expression': 'https://cools.com/shop/men?brand=blackbarrett'
+            #     }],
+            # }],
+            # 'dimensions': ['date'],
+            'rowLimit': row_limit,
+            'startRow': row_limit * index
+        }
+
+        results = execute_request(
+            service, website, request)
+
+        if results.get('rows'):
+            for row in results['rows']:
+                try:
+                    page = row['keys'][0]
+                    keyword = row['keys'][1]
+                    f.write(f"{page};{keyword};{row['impressions']};{row['clicks']};"
+                            f"{row['position']};{row['ctr']}\n")
+                except IndexError:
+                    print(row['keys'], int(row['impressions']))
+
+            index += 1
+            pprint(results['rows'][:3])
+        else:
+            pprint(results)
+            working = False
+
+
+if __name__ == '__main__':
+    main()
