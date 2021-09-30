@@ -9,16 +9,14 @@ driver.get("https://www.bing.com/translator")
 select = Select(driver.find_element_by_id('tta_tgtsl'))
 select.select_by_value('de')
 
-print(select, 'select')
-
 elem = driver.find_element_by_id("tta_input_ta")
-print(elem, 'elem')
 elem.clear()
 elem.send_keys("hello world")
 elem.send_keys(Keys.RETURN)
 time.sleep(3)
 elem_trans = driver.find_element_by_id("tta_output_ta")
-print(elem_trans, 'trans')
 text = elem_trans.get_attribute('value')
-print(text)
+
+with open('translate.txt', 'a', encoding='utf-8') as f:
+    f.write(text+'\n')
 driver.close()
