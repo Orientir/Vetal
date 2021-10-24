@@ -20,17 +20,13 @@ def concat_horizontally(img_frst_rev, img_scnd_rev):
         biggest_image = img_open_second
 
     result_pixels = []
-    print("array")
-    print(numpy.array(small_img))
     for line in numpy.array(small_img):
         new_line = []
-        print('line', type(line))
-        print(line)
+
         for pix in line:
             b = int(pix[2]) + 100
             b = b if b <= 255 else 255
             new_pix = [pix[0], pix[1], b]
-            print('numpy.asarray(new_pix, dtype=numpy.uint8)', numpy.asarray(new_pix, dtype=numpy.uint8))
             new_line.append(numpy.asarray(new_pix, dtype=numpy.uint8))
         result_pixels.append(numpy.asarray(new_line))
 
