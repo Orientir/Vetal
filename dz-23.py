@@ -3,12 +3,14 @@ import random
 from peewee import *
 from requests_html import HTMLSession
 from slugify import slugify
-
+from pprint import pprint
 
 class OlxParser:
    def __init__(self):
       self.start_url = 'https://www.olx.ua/'
       self.category_xpath = '//li/a[@data-id]/@href'
+      self.name_category_xpath = '//li/a[@data-id]/span/span/text()'
+      self.breadcrumb_name_category_xpath = '//div[@class="rootcategory-filter-item"]/div[@class="rel combospace"]/a/span/span/text()'
       self.proxies = []
       self.agents = []
       self.session = HTMLSession()
@@ -39,6 +41,9 @@ class OlxParser:
       headers = self.get_random_headers()
       response = self.session.get(self.start_url, headers=headers)
       links = response.html.xpath(self.category_xpath)
+      names = response.html.xpath(self.name_category_xpath)
+      for name in names:
+         category = Category.get_or_create(name=name)
       return links
 
    def run(self):
@@ -47,9 +52,16 @@ class OlxParser:
       for link in links:
          headers = self.get_random_headers()
          resp = self.session.get(link, headers=headers)
-         self.get_ads(resp)
+         try:
+            name_category = resp.html.xpath(self.breadcrumb_name_category_xpath)[0]
+            id_category = Category.get(name=name_category).id
+         except Exception as e:
+            id_category = Category.select().where(Category.name.contains(name_category[:-4]))[0].id
+            print(f'EXCEPT {e}: ')
 
-   def get_ads(self, response):
+         self.get_ads(resp, id_category)
+
+   def get_ads(self, response, id_category):
       ad_blocks = response.html.xpath('//div[@class="offer-wrapper"]')
       with open(self.result_file, 'a', encoding="utf-8") as f:
          csv_writer = csv.DictWriter(f, self.fieldnames)
@@ -81,6 +93,7 @@ class OlxParser:
                   csv_writer.writerow(ad)
                except Exception as e:
                   print("EXCEPT CSV ", e)
+               ad['category'] = id_category
                Olx.create(**ad)
             except Exception as e:
                print(e)
@@ -90,15 +103,15 @@ class OlxParser:
 
 db = PostgresqlDatabase('library', host='88.198.172.182', port=5432, user='py4seo', password='PY1111forSEO')
 db_table_olx = slugify("Виталий Козаченко")
-db_table_category = "Category"
+db_table_category = "Category"+db_table_olx
 
 
 class Category(Model):
    name = CharField(max_length=55)
-   description = CharField(max_length=255)
 
    class Meta:
       database = db
+      db_table=db_table_category
 
 
 class Olx(Model):
@@ -116,7 +129,9 @@ class Olx(Model):
       db_table=db_table_olx
 
 db.connect()
+db.drop_tables([Olx, Category])
+db.create_tables([Olx, Category])
 
-#db.create_tables([Olx])
-# parser = OlxParser()
-# parser.run()
+#
+parser = OlxParser()
+parser.run()
