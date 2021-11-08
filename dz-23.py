@@ -3,6 +3,8 @@ import random
 from peewee import *
 from requests_html import HTMLSession
 from slugify import slugify
+from queue import Queue
+from threading import Lock, Thread
 from pprint import pprint
 
 class OlxParser:
@@ -58,8 +60,6 @@ class OlxParser:
          except Exception as e:
             id_category = Category.select().where(Category.name.contains(name_category[:-4]))[0].id
             print(f'EXCEPT {e}: ')
-
-         self.get_ads(resp, id_category)
 
    def get_ads(self, response, id_category):
       ad_blocks = response.html.xpath('//div[@class="offer-wrapper"]')
@@ -134,4 +134,9 @@ db.create_tables([Olx, Category])
 
 #
 parser = OlxParser()
-parser.run()
+# parser.run()
+
+thread = 4
+
+for _ in range(thread):
+   Thread(target=parser.run, ).start()
