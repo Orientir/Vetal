@@ -92,10 +92,7 @@ def main():
     home_page = f'https://{domain}/'
     LINKS_QUEUE.put(home_page)
 
-    thread = 100
-    # with ThreadPoolExecutor(max_workers=thread) as executor:
-    #     for _ in range(thread):
-    #         executor.submit(worker, domain)
+    thread = 4
 
     for _ in range(thread):
         Thread(target=worker, args=(domain, )).start()
