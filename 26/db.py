@@ -1,16 +1,18 @@
 import datetime
 import peewee_async
 from peewee import *
+from slugify import slugify
 
+db_table_name = slugify("Виталий Козаченко frog")
 
-connection = {
-    'user': 'py4seo',
-    'password': 'PY1111forSEO',
-    'host': '46.30.164.249',
-    'port': 5432
-}
+# connection = {
+#     'user': 'py4seo',
+#     'password': 'PY1111forSEO',
+#     'host': '46.30.164.249',
+#     'port': 5432
+# }
 
-db = peewee_async.PostgresqlDatabase('library', autorollback=True, **connection)
+db = peewee_async.PostgresqlDatabase('library', autorollback=True, host='88.198.172.182', port=5432, user='py4seo', password='PY1111forSEO')
 
 
 class Page(Model):
@@ -21,15 +23,13 @@ class Page(Model):
 
     class Meta:
         database = db
-        table_name = 'pages_26'
+        table_name = db_table_name
 
 
 objects = peewee_async.Manager(db)
 
 
 if __name__ == '__main__':
-
-    if Page.Meta.table_name in db.get_tables():
-        db.drop_tables([Page])
+    db.connect()
 
     db.create_tables([Page])
