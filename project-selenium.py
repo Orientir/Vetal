@@ -39,7 +39,6 @@ def main():
             not_found = []
 
             for domain in domains:
-
                 option = webdriver.ChromeOptions()
                 option.add_argument('headless')
                 option.add_argument(
@@ -50,6 +49,7 @@ def main():
                     driver.get(domain)
                     sleep(3)
                     print(f'\n----------------------- {domain} ------------------------\n')
+
 
                     src = driver.page_source
                     text_found = re.search(fr'{your_link}', src)
