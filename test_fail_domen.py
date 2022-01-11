@@ -21,12 +21,9 @@ if keys:
 
     if question == 'n':
         key = input('Input key: ')
-        with open(google_keys, 'a', encoding='utf-8') as f:
-            f.write(key+'\n')
 else:
     key = input('Input key: ')
-    with open(google_keys, 'a', encoding='utf-8') as f:
-        f.write(key + '\n')
+    question = 'no question'
 
 google = f'https://www.google.com/search?q={key}&num=100&hl=en'
 
@@ -34,32 +31,41 @@ session = HTMLSession()
 resp = session.get(google)
 html_snipets = resp.html.xpath('//div[@class="g"]')
 
-for link in html_snipets:
-    url = link.xpath('//div[@class="yuRUbf"]/a[1]/@href')[0]
-    try:
-        response = session.get(url)
-        all_links = response.html.absolute_links
-        for l in all_links:
-            craul(l)
-            # try:
-            #     respons = session.get(l)
-            # except ConnectionError as e:
-            #     print('Inside link ', l)
-            #     with open(google_died_domen, 'a', encoding='utf-8') as f:
-            #         f.write(l + '\n')
-            # except Exception as e:
-            #     print(e)
-            # second = randint(1, 5)
-            # sleep(second)
-    except ConnectionError as e:
-        print('ConnectionError', url)
-        with open(google_top, 'a', encoding='utf-8') as f:
-            f.write(url+'\n')
-    except Exception as e:
-        print('MAIN ', e)
-    second = randint(1, 5)
-    sleep(second)
+if question == 'y':
+    html_snipets = html_snipets[index:]
 
+for index, link in enumerate(html_snipets):
+    try:
+        url = link.xpath('//div[@class="yuRUbf"]/a[1]/@href')[0]
+        try:
+            response = session.get(url)
+            all_links = response.html.absolute_links
+            for l in all_links:
+                craul(l)
+                # try:
+                #     respons = session.get(l)
+                # except ConnectionError as e:
+                #     print('Inside link ', l)
+                #     with open(google_died_domen, 'a', encoding='utf-8') as f:
+                #         f.write(l + '\n')
+                # except Exception as e:
+                #     print(e)
+                # second = randint(1, 5)
+                # sleep(second)
+        except ConnectionError as e:
+            print('ConnectionError', url)
+            with open(google_top, 'a', encoding='utf-8') as f:
+                f.write(url+'\n')
+        except Exception as e:
+            print('MAIN ', e)
+        second = randint(1, 5)
+        sleep(second)
+    except:
+        with open(google_keys, 'a', encoding='utf-8') as f:
+            f.write(key + ";" + str(index) + '\n')
+else:
+    with open(google_keys, 'a', encoding='utf-8') as f:
+        f.write(key + ";" + "100" + '\n')
 print('**********************')
 print('TASK DONE')
 print('**********************')

@@ -1,10 +1,11 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 import time
+
+fail_symbol = ['|', '+', '=', '[', ']', ':', ';', '«', ',', '.', '/', '?', '"', "'", "\\", '*', '<', '>']
 
 button_points = ("(//yt-icon-button[@class='dropdown-trigger style-scope ytd-menu-renderer']/button[@class='style-scope yt-icon-button'])", 'button.yt-icon-button')
 
@@ -28,37 +29,42 @@ def get_element_by_xpath_selector(browser, xpath_selector):
 
 youtube_link = input('Input youtube link: ')
 
-browser = webdriver.Chrome()
+options = webdriver.ChromeOptions()
+options.add_argument('--window-size=1920,1080')
+options.add_argument('--headless')
+browser = webdriver.Chrome(chrome_options=options)
 browser.get(youtube_link)
 
-#yt_icon_button = get_elements_by_css_selector(browser, "ytd-menu-renderer.style-scope ytd-video-primary-info-renderer>yt-icon-button.dropdown-trigger style-scope ytd-menu-renderer>button.style-scope yt-icon-button")[0]
 try:
-    # yt_icon_button = browser.find_element_by_css_selector('button.yt-icon-button')
+    try:
+        title = browser.title
+        for symbol in fail_symbol:
+            title = title.replace(symbol, '')
+    except:
+        title = 'not found'
+    print(title)
     try:
         yt_icon_button = get_element_by_css_selector(browser, button_points[1])
     except:
         yt_icon_button = get_element_by_xpath_selector(browser, button_points[0])
     time.sleep(3)
     browser.execute_script("arguments[0].click();", yt_icon_button)
-    time.sleep(5)
-
-    # ytd-menu-service-item-renderer class="style-scope ytd-menu-popup-renderer"
-    # ytd_menu_service = browser.find_element_by_css_selector('ytd-menu-service-item-renderer.ytd-menu-popup-renderer')
-    # ytd_menu_service = browser.find_element_by_xpath("/html/body/ytd-app/ytd-popup-container/tp-yt-iron-dropdown/div/ytd-menu-popup-renderer/tp-yt-paper-listbox/ytd-menu-service-item-renderer")
+    time.sleep(2)
     ytd_menu_service = get_element_by_css_selector(browser, 'ytd-menu-service-item-renderer.ytd-menu-popup-renderer')
     browser.execute_script("arguments[0].click();", ytd_menu_service)
-    print('CLICK')
     time.sleep(5)
-    # panels = get_elements_by_css_selector(browser, 'ytd-transcript-body-renderer.ytd-transcript-renderer>div.ytd-transcript-body-renderer')
-    # cue style-scope ytd-transcript-body-renderer active
     panels = browser.find_elements_by_css_selector(
                                           'ytd-transcript-body-renderer.ytd-transcript-renderer>div>div.cues>div.cue')
+
+    founded_text = []
     for text in panels:
-        print(text.text)
+        if not text.text.startswith('['):
+            founded_text.append(text.text)
+    text = ' '.join(founded_text)
+    with open(f'{title}.txt', 'w') as f:
+        f.write(text)
+
 except Exception as e:
     print('EXCEPTION ', e)
 browser.close()
-# style-scope yt-icon-button
-# subtitle = resp.html.xpath('//div[@class="style-scope ytd-engagement-panel-section-list-renderer"]/div[@class="cue-group"]')
-# print(len(subtitle))
-# pp(subtitle)
+print('DONE')
