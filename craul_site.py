@@ -2,6 +2,8 @@ from requests_html import HTMLSession
 
 fail_domens = ['linkedin', 'pdf', 'adobe', 'google', 'yandex', 'youtube', 'facebook', 'instagram', 'twitter', 'apps', 'apple', 'tripadvisor', 'tiktok', 'itunes', 'music']
 def craul(l):
+    google_died_domen = 'google-died-domen.txt'
+    domain = l.split('/')[2]
 
     session = HTMLSession()
     crawled_links = set()
