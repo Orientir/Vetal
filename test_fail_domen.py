@@ -1,20 +1,20 @@
 from requests_html import HTMLSession
-from requests.exceptions import ConnectionError
 from time import sleep
 from random import randint
-from pprint import pprint as pp
 from craul_site import craul
 
 google_top = 'google-top-100.txt'
 google_died_domen = 'google-died-domen.txt'
 google_keys = 'google-keys.txt'
 
-fail_domen = ['google', 'yandex', 'youtube', 'facebook', 'instagram', 'twitter']
+fail_domens = ['linkedin', 'pdf', 'adobe', 'google', 'yandex', 'youtube', 'facebook', 'instagram', 'twitter', 'apps', 'apple', 'tripadvisor', 'tiktok', 'itunes', 'music']
 
 with open(google_keys, 'r', encoding='utf-8') as f:
     keys = f.readlines()
 if keys:
-    key, index = tuple(keys[-1].split(';'))
+    last_element = keys[-1] if keys[-1] != "" else keys[-2]
+    key, index = tuple(last_element.split(';'))
+    index = int(index)
 
 if keys:
     question = (input(f'Continue {key} parse or start new? Y - Continue, N - start new : ')).lower()
@@ -37,30 +37,26 @@ if question == 'y':
 for index, link in enumerate(html_snipets):
     try:
         url = link.xpath('//div[@class="yuRUbf"]/a[1]/@href')[0]
+        with open(google_top, 'a', encoding='utf-8') as f:
+            f.write(url + '\n')
+        if any(site for site in fail_domens if site in url):
+            continue
         try:
             response = session.get(url)
             all_links = response.html.absolute_links
             for l in all_links:
                 craul(l)
-                # try:
-                #     respons = session.get(l)
-                # except ConnectionError as e:
-                #     print('Inside link ', l)
-                #     with open(google_died_domen, 'a', encoding='utf-8') as f:
-                #         f.write(l + '\n')
-                # except Exception as e:
-                #     print(e)
-                # second = randint(1, 5)
-                # sleep(second)
-        except ConnectionError as e:
-            print('ConnectionError', url)
-            with open(google_top, 'a', encoding='utf-8') as f:
-                f.write(url+'\n')
         except Exception as e:
-            print('MAIN ', e)
+            with open(google_died_domen, 'a', encoding='utf-8') as f:
+                f.write(url + '\n')
         second = randint(1, 5)
         sleep(second)
-    except:
+    except KeyboardInterrupt as e:
+        with open(google_keys, 'a', encoding='utf-8') as f:
+            f.write(key + ";" + str(index) + '\n')
+        break
+    except Exception as e:
+        print(e)
         with open(google_keys, 'a', encoding='utf-8') as f:
             f.write(key + ";" + str(index) + '\n')
 else:
